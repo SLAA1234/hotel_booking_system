@@ -12,8 +12,12 @@ public class Program {
 
     public void start() {
         connectToDb();
+
         while (true) {
-            currentAdmin = adminLogin();
+            currentAdmin = adminLogin();//sometimes, even admin has login, still ask username and password? need fix
+            if(currentAdmin == null){
+                adminLogin();
+            }
             if (currentAdmin != null) {
                 adminOperate(currentAdmin);
             }
@@ -36,8 +40,10 @@ public class Program {
             case 4:
                 changeReservation();
                 break;
+            case 5:
+                System.exit(0);
             default:
-                System.out.println("You must choose a number between 1-4.");
+                System.out.println("You must choose a number between 1-5.");
         }
 
     }
@@ -53,6 +59,33 @@ public class Program {
 
     private void createNewCustomer() {
         System.out.println("You want to register a customer.");
+        System.out.println("Input first name: ");
+        String person_first_name = scanner.nextLine();
+        System.out.println("Input last name: ");
+        String person_last_name= scanner.nextLine();
+        System.out.println("Input pass number: ");
+        String person_pass = scanner.nextLine();
+        System.out.println("Input country of customer: ");
+        String person_country = scanner.nextLine();
+        System.out.println("Input email of customer: ");
+        String person_email = scanner.nextLine();
+        System.out.println("Input telephone: ");//number save as varchar
+        String person_telephone =  scanner.nextLine();
+
+        try{
+            statement = conn.prepareStatement("INSERT INTO persons SET person_first_name = ?, person_last_name = ?, person_pass = ?, person_country = ?, person_email = ?, person_telephone = ?;");
+            statement.setString(1,person_first_name);
+            statement.setString(2,person_last_name);
+            statement.setString(3,person_pass);
+            statement.setString(4,person_country);
+            statement.setString(5,person_email);
+            statement.setString(6,person_telephone);
+            statement.executeUpdate();
+            System.out.println(person_first_name + " " + person_last_name + " has been successfully registered as customer.");
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 
     }
 
@@ -62,39 +95,42 @@ public class Program {
         System.out.println("2.Search available room.");
         System.out.println("3.Cancel reservation.");
         System.out.println("4.Change reservation.");
+        System.out.println("5.Exit.");
     }
     private Admin adminLogin() {
-        System.out.println("Admin, please input your username: ");
-        String username = scanner.nextLine();
-        System.out.println("please input your password: ");
-        char[] password = scanner.nextLine().toCharArray();
-        try {
-            statement = conn.prepareStatement("SELECT * FROM persons WHERE username = ? and password = ? And admin = 'Y';");
-            statement.setString(1, username);
-            statement.setString(2, String.valueOf(password));
-            ResultSet result = statement.executeQuery();
-            if (result.next()) {
-                System.out.println("admin, you are successfully log in!");
-                Statement stmt = conn.createStatement();
+            System.out.println("Admin, please input your username: ");
+            String username = scanner.nextLine();
+            System.out.println("please input your password: ");
+            char[] password = scanner.nextLine().toCharArray();
+            try {
+                statement = conn.prepareStatement("SELECT * FROM persons WHERE username = ? and password = ? And admin = 'Y';");
+                statement.setString(1, username);
+                statement.setString(2, String.valueOf(password));
+                ResultSet result = statement.executeQuery();
+                if (result.next()) {
+                    System.out.println("admin, you are successfully log in!");
+                    Statement stmt = conn.createStatement();
 
-                ResultSet resultSet = stmt.executeQuery("SELECT person_first_name, person_last_name FROM persons WHERE admin = 'Y'");
-                while(resultSet.next()){
-                    String person_first_name = resultSet.getString("person_first_name");
-                    String person_last_name = resultSet.getString("person_last_name");
-                    String name = person_first_name + " " + person_last_name;
-                    Admin admin = new Admin(name);
-                    return admin;
-                }
+                    ResultSet resultSet = stmt.executeQuery("SELECT person_first_name, person_last_name FROM persons WHERE admin = 'Y'");
+                    while (resultSet.next()) {
+                        String person_first_name = resultSet.getString("person_first_name");
+                        String person_last_name = resultSet.getString("person_last_name");
+                        String name = person_first_name + " " + person_last_name;
+                        Admin admin = new Admin(name);
+                        return admin;
+                    }
                     conn.close();
-            } else {
-                System.out.println("wrong username or password.");
-            }
+                } else {
+                    System.out.println("wrong username or password.");
+                }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
-        return null;
-    }
+
+
 
 
 
