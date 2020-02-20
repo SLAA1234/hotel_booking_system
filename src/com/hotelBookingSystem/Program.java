@@ -12,12 +12,9 @@ public class Program {
 
     public void start() {
         connectToDb();
-
+        //currentAdmin = adminLogin();//if wrong, don't
         while (true) {
-            currentAdmin = adminLogin();//sometimes, even admin has login, still ask username and password? need fix
-            if(currentAdmin == null){
-                adminLogin();
-            }
+            currentAdmin = adminLogin();
             if (currentAdmin != null) {
                 adminOperate(currentAdmin);
             }
@@ -25,27 +22,40 @@ public class Program {
     }
 
     private void adminOperate(Admin currentAdmin){
-        printAdminMenu();
-        int choice = Integer.parseInt(scanner.nextLine());
-        switch (choice){
-            case 1:
-                createNewCustomer();
-                break;
-            case 2:
-                searchAvailableRoom();
-                break;
-            case 3:
-                cancelReservation();
-                break;
-            case 4:
-                changeReservation();
-                break;
-            case 5:
-                System.exit(0);
-            default:
-                System.out.println("You must choose a number between 1-5.");
-        }
+        while(true) {
+            System.out.println("Choose option:");
+            System.out.println("1.Register a customer.");
+            System.out.println("2.Search available room.");
+            System.out.println("3.Cancel reservation.");
+            System.out.println("4.Change reservation.");
+            System.out.println("5.Exit.");
+            int choice = 999;
 
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                System.out.println("You must select a number.");
+            }
+
+            switch (choice) {
+                case 1:
+                    createNewCustomer();
+                    break;
+                case 2:
+                    searchAvailableRoom();
+                    break;
+                case 3:
+                    cancelReservation();
+                    break;
+                case 4:
+                    changeReservation();
+                    break;
+                case 5:
+                    System.exit(0);
+                default:
+                    System.out.println("You must choose a number between 1-5.");
+            }
+        }
     }
 
     private void changeReservation() {
@@ -89,14 +99,9 @@ public class Program {
 
     }
 
-    private void printAdminMenu(){
-        System.out.println("Choose option:");
-        System.out.println("1.Register a customer.");
-        System.out.println("2.Search available room.");
-        System.out.println("3.Cancel reservation.");
-        System.out.println("4.Change reservation.");
-        System.out.println("5.Exit.");
-    }
+
+
+
     private Admin adminLogin() {
             System.out.println("Admin, please input your username: ");
             String username = scanner.nextLine();
