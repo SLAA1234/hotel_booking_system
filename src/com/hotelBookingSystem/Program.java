@@ -59,7 +59,131 @@ public class Program {
     }
 
     private void changeReservation(){
+        System.out.println("You want to change customer reservation: ");
+        System.out.println("Please input the reference of the reservation: ");
+        String reservation_reference = scanner.nextLine();
+        try{
+            statement = conn.prepareStatement("SELECT total_person, person_over_12, check_in, check_out, price_total, reservations.extra_bed, extra_bed_price, hotel_name, meal_type, price_meal_per_person, room_price_per_day, rooms.extra_bed_availability, max_persons, room_type.room_type, room_number\n" +
+                    "\tFROM reservations \n" +
+                    "\t\tinner JOIN hotel_meal_choice\n" +
+                    "\t\t\tON reservations.meal_choice_id = hotel_meal_choice.meal_choice_id\n" +
+                    "\t\t\t\tINNER JOIN rooms\n" +
+                    "\t\t\t\t\tON reservations.room_id = rooms.room_id\n" +
+                    "\t\t\t\t\t\tINNER JOIN room_type\n" +
+                    "\t\t\t\t\t\t\tON rooms.room_type_id = room_type.room_type_id\n" +
+                    "\t\t\t\t\t\t\t\tINNER JOIN hotels\n" +
+                    "\t\t\t\t\t\t\t\t\tON hotels.hotel_id = reservations.hotel_id WHERE reservation_reference = ?");
+            statement.setString(1, reservation_reference);
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+                String total_person = result.getObject(1).toString();
+                String person_over_12 = result.getObject(2).toString();
+                String check_in = result.getObject(3).toString();
+                String check_out = result.getObject(4).toString();
+                String price_total = result.getObject(5).toString();
+                String extra_bed = result.getObject(6).toString();
+                String extra_bed_price = result.getObject(7).toString();
+                String hotel_name = result.getObject(8).toString();
+                String meal_type = result.getObject(9).toString();
+                String price_meal_per_person = result.getObject(10).toString();
+                String room_price_per_day = result.getObject(11).toString();
+                String extra_bed_availability = result.getObject(12).toString();
+                String max_person = result.getObject(13).toString();
+                String room_type = result.getObject(14).toString();
+                String room_number = result.getObject(15).toString();
+                
+                System.out.println("hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".");
+                System.out.println("total person: " + total_person + ". person over 12: " + person_over_12 + ". check in: " + check_in + ". check out: "+ check_out + ".");
+                System.out.println("extra bed: "+ extra_bed + ". extra bed price: " + extra_bed_price + ". meal type: "+ meal_type + ". meal price per person: " + price_meal_per_person + ".");
+                System.out.println("extra bed availability: " + extra_bed_availability + ". max person: " + max_person + ".");
+                System.out.println("total price: " + price_total + ".");
+                System.out.println("I have found your reservation. What do you want to change?");
+                changeMadeByUser();
+                conn.close();
+            } else {
+                System.out.println("Couldn't find your reservation.");
+            }
+        }catch (SQLException ex){
+            ex.getStackTrace();
+        }
     }
+
+    private void changeMadeByUser(){
+        while(true) {
+            System.out.println("1.change check in date.");
+            System.out.println("2.change check out date.");
+            System.out.println("3.change number of persons.");
+            System.out.println("4.change number of persons over 12 years old.");
+            System.out.println("5.add extra bed.");
+            System.out.println("6.remove extra bed.");
+            System.out.println("7.change meal choice.");
+            System.out.println("8.change room.");
+            System.out.println("9.Exit.");
+            int choice = 999;
+
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                System.out.println("You must select a number.");
+            }
+
+            switch (choice) {
+                case 1:
+                    changeCheckInDate();
+                    break;
+                case 2:
+                    changeCheckOutDate();
+                    break;
+                case 3:
+                    changeTotalPersons();
+                    break;
+                case 4:
+                    changePersonsOver12();
+                    break;
+                case 5:
+                    addExtraBed();
+                    break;
+                case 6:
+                    removeExtraBed();
+                    break;
+                case 7:
+                    changeMeal();
+                    break;
+                case 8:
+                    searchRoom();
+                    break;
+                case 9:
+                    System.exit(0);
+                default:
+                    System.out.println("You must choose a number between 1-9.");
+            }
+        }
+    }
+
+    private void searchRoom() {
+    }
+
+    private void changeMeal() {
+    }
+
+    private void removeExtraBed() {
+    }
+
+    private void addExtraBed() {
+    }
+
+    private void changePersonsOver12() {
+    }
+
+    private void changeTotalPersons() {
+    }
+
+    private void changeCheckOutDate() {
+    }
+
+    private void changeCheckInDate() {
+    }
+
 
     private void cancelReservation() {
         System.out.println("You want to cancel a reservation: ");
