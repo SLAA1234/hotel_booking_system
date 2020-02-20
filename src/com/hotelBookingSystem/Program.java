@@ -12,8 +12,8 @@ public class Program {
 
     public void start() {
         connectToDb();
-        //currentAdmin = adminLogin();//if wrong, don't
-        while (true) {
+
+        while (true) {//if invalid admin, how to quit normally.
             currentAdmin = adminLogin();
             if (currentAdmin != null) {
                 adminOperate(currentAdmin);
@@ -58,10 +58,25 @@ public class Program {
         }
     }
 
-    private void changeReservation() {
+    private void changeReservation(){
     }
 
     private void cancelReservation() {
+        System.out.println("You want to cancel a reservation: ");
+        System.out.println("Please input the reference of the reservation: ");
+        String reservation_reference = scanner.nextLine();
+        try{
+            statement = conn.prepareStatement("DELETE FROM reservations WHERE reservation_reference = ?");
+            statement.setString(1, reservation_reference);
+            int rows = statement.executeUpdate();
+            if (rows>0) {
+                System.out.println("The reservation has been cancelled.");
+                conn.close();
+            } else{
+            System.out.println("This reservation doesn't exit.");}
+        }catch (SQLException ex){
+            ex.getStackTrace();
+        }
     }
 
     private void searchAvailableRoom() {
@@ -114,8 +129,8 @@ public class Program {
                 ResultSet result = statement.executeQuery();
                 if (result.next()) {
                     System.out.println("admin, you are successfully log in!");
-                    Statement stmt = conn.createStatement();
 
+                    Statement stmt = conn.createStatement();
                     ResultSet resultSet = stmt.executeQuery("SELECT person_first_name, person_last_name FROM persons WHERE admin = 'Y'");
                     while (resultSet.next()) {
                         String person_first_name = resultSet.getString("person_first_name");
