@@ -1,6 +1,7 @@
 package com.hotelBookingSystem;
 
 import java.sql.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class Program {
@@ -8,7 +9,11 @@ public class Program {
     Connection conn = null;
     PreparedStatement statement;
     private Admin currentAdmin;
+    Reservation currentReservation;
     Scanner scanner = new Scanner(System.in);
+
+    public Program() throws SQLException {
+    }
 
     public void start() {
         connectToDb();
@@ -57,6 +62,7 @@ public class Program {
             }
         }
     }
+
 
     private void changeReservation(){
         System.out.println("You want to change customer reservation: ");
@@ -108,7 +114,7 @@ public class Program {
         }
     }
 
-    private void changeMadeByUser(){
+    private void changeMadeByUser() throws SQLException {
         while(true) {
             System.out.println("1.change check in date.");
             System.out.println("2.change check out date.");
@@ -175,15 +181,100 @@ public class Program {
     private void changePersonsOver12() {
     }
 
-    private void changeTotalPersons() {
+
+
+    private void changeTotalPersons() throws SQLException {//doesn't work here
+        currentReservation = findReservation();
+        System.out.println("How many guests will come? ");
+        int new_total_person = Integer.parseInt(scanner.nextLine());//never come to if, maybe in the loop
+        if(currentReservation!=null && Integer.parseInt(currentReservation.max_person)>=new_total_person) {
+
+            statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
+            statement.setInt(1, new_total_person);
+            statement.setString(2, currentReservation.reservation_reference);
+            statement.executeUpdate();
+            System.out.println("The total guests number has been changed. The new reservation details: ");
+
+        }
     }
 
     private void changeCheckOutDate() {
     }
 
     private void changeCheckInDate() {
+        System.out.println("When is the new check in date?");
+        String newCheckIn = scanner.nextLine();//change to date form
     }
 
+    private String checkReservationReference(){//display twice
+        System.out.println("Please input the reference of the reservation: ");
+        String reservation_reference = scanner.nextLine();
+        try {
+            statement = conn.prepareStatement("SELECT * FROM reservations WHERE reservation_reference = ? ;");
+            statement.setString(1, reservation_reference);
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+                System.out.println("There is a reservation with this reservation reference.");
+               // conn.close();
+                return reservation_reference;
+            } else {
+                System.out.println("No such reservation.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Reservation findReservation(){
+        String reservation_reference = checkReservationReference();
+        if(reservation_reference!=null){
+           try {
+               statement = conn.prepareStatement("SELECT total_person, person_over_12, check_in, check_out, price_total, reservations.extra_bed, extra_bed_price, hotel_name, meal_type, price_meal_per_person, room_price_per_day, rooms.extra_bed_availability, max_persons, room_type.room_type, room_number\n" +
+                       "\tFROM reservations \n" +
+                       "\t\tinner JOIN hotel_meal_choice\n" +
+                       "\t\t\tON reservations.meal_choice_id = hotel_meal_choice.meal_choice_id\n" +
+                       "\t\t\t\tINNER JOIN rooms\n" +
+                       "\t\t\t\t\tON reservations.room_id = rooms.room_id\n" +
+                       "\t\t\t\t\t\tINNER JOIN room_type\n" +
+                       "\t\t\t\t\t\t\tON rooms.room_type_id = room_type.room_type_id\n" +
+                       "\t\t\t\t\t\t\t\tINNER JOIN hotels\n" +
+                       "\t\t\t\t\t\t\t\t\tON hotels.hotel_id = reservations.hotel_id WHERE reservation_reference = ?");
+               statement.setString(1, reservation_reference);
+               ResultSet result = statement.executeQuery();
+               if (result.next()) {
+                   String total_person = result.getObject(1).toString();
+                   String person_over_12 = result.getObject(2).toString();
+                   String check_in = result.getObject(3).toString();
+                   String check_out = result.getObject(4).toString();
+                   String price_total = result.getObject(5).toString();
+                   String extra_bed = result.getObject(6).toString();
+                   String extra_bed_price = result.getObject(7).toString();
+                   String hotel_name = result.getObject(8).toString();
+                   String meal_type = result.getObject(9).toString();
+                   String price_meal_per_person = result.getObject(10).toString();
+                   String room_price_per_day = result.getObject(11).toString();
+                   String extra_bed_availability = result.getObject(12).toString();
+                   String max_person = result.getObject(13).toString();
+                   String room_type = result.getObject(14).toString();
+                   String room_number = result.getObject(15).toString();
+                   currentReservation = new Reservation(total_person,person_over_12,check_in,check_out,price_total,extra_bed, extra_bed_price,hotel_name,meal_type,price_meal_per_person, room_price_per_day,extra_bed_availability,max_person,room_type,room_number,reservation_reference);
+
+                   System.out.println("hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".");
+                   System.out.println("total person: " + total_person + ". person over 12: " + person_over_12 + ". check in: " + check_in + ". check out: " + check_out + ".");
+                   System.out.println("extra bed: " + extra_bed + ". extra bed price: " + extra_bed_price + ". meal type: " + meal_type + ". meal price per person: " + price_meal_per_person + ".");
+                   System.out.println("extra bed availability: " + extra_bed_availability + ". max person: " + max_person + ".");
+                   System.out.println("total price: " + price_total + ".");
+                   System.out.println("I have found your reservation. What do you want to change?");
+                   conn.close();
+                   return currentReservation;
+               }
+           } catch (SQLException ex) {
+               ex.getStackTrace();
+           }
+       }
+    return null;
+    }
 
     private void cancelReservation() {
         System.out.println("You want to cancel a reservation: ");
