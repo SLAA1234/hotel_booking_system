@@ -1,10 +1,6 @@
 package com.hotelBookingSystem;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class Reservation {
     String reservation_reference;

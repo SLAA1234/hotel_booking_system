@@ -9,7 +9,7 @@ public class Program {
     Connection conn = null;
     PreparedStatement statement;
     private Admin currentAdmin;
-    //Reservation currentReservation;
+    YNStatus ynStatus;
 
     Scanner scanner = new Scanner(System.in);
 
@@ -143,10 +143,13 @@ public class Program {
                         break;
                     case 3:
                         if(currentReservation!=null){
-                            changePersons(currentReservation);}
+                            changePersons(currentReservation);
+                        }
                         break;
                     case 4:
-                        changeExtraBed();
+                        if(currentReservation!=null){
+                            changeExtraBed(currentReservation);
+                        }
                         break;
                     case 5:
                         changeMeal();
@@ -169,8 +172,43 @@ public class Program {
     private void changeMeal() {
     }
 
-    private void changeExtraBed() {
-    }
+    private void changeExtraBed(Reservation currentReservation) {
+        System.out.println("Your current extra bed status is: " + currentReservation.extra_bed + ". I will help you change it.");
+        
+       if (currentReservation.extra_bed_availability.equals("Y") && currentReservation.extra_bed.equals("Y")) {
+            try {
+                statement = conn.prepareStatement(" update reservations SET extra_bed = ? Where reservation_reference = ?;");
+                statement.setString(1, "N");
+                statement.setString(2, currentReservation.reservation_reference);
+                statement.executeUpdate();
+                System.out.println("Now your extra bed status is: N. Your new reservation details: ");
+                currentReservation.extra_bed = "N";
+                System.out.println(currentReservation);
+
+            } catch (SQLException ex) {
+                ex.getStackTrace();
+            }
+        }
+        else if (currentReservation.extra_bed_availability.equals("Y") && currentReservation.extra_bed.equals("N")) {
+           try {
+               statement = conn.prepareStatement(" update reservations SET extra_bed = ? Where reservation_reference = ?;");
+               statement.setString(1, "Y");
+               statement.setString(2, currentReservation.reservation_reference);
+               statement.executeUpdate();
+               System.out.println("Now your extra bed status is: Y. Your new reservation details: ");
+               currentReservation.extra_bed = "Y";
+               System.out.println(currentReservation);
+
+           } catch (SQLException ex) {
+               ex.getStackTrace();
+           }
+       }
+        else{
+            System.out.println("Oh! This room doesn't allow to add extra bed.");
+            }
+        }
+
+
 
 
     private void changePersons(Reservation currentReservation) {
