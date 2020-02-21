@@ -8,23 +8,23 @@ import java.util.Scanner;
 
 public class Reservation {
     String reservation_reference;
-    String total_person ;
-    String person_over_12 ;
+    int total_person;
+    int person_over_12 ;
     String check_in ;
     String check_out ;
-    String price_total;
+    int price_total;
     String extra_bed ;
-    String extra_bed_price ;
+    int extra_bed_price ;
     String hotel_name ;
     String meal_type ;
-    String price_meal_per_person ;
-    String room_price_per_day;
+    int price_meal_per_person ;
+    int room_price_per_day;
     String extra_bed_availability ;
-    String max_person;
+    int max_person;
     String room_type;
-    String room_number;
+    int room_number;
 
-    public Reservation(String total_person, String person_over_12, String check_in, String check_out, String price_total, String extra_bed, String extra_bed_price, String hotel_name, String meal_type, String price_meal_per_person, String room_price_per_day, String extra_bed_availability, String max_person, String room_type, String room_number, String reservation_reference) throws SQLException {
+    public Reservation(int total_person, int person_over_12 , String check_in, String check_out, int price_total, String extra_bed, int extra_bed_price, String hotel_name, String meal_type, int price_meal_per_person, int room_price_per_day, String extra_bed_availability, int max_person, String room_type, int room_number, String reservation_reference) throws SQLException {
         this.total_person = total_person;
         this.person_over_12 = person_over_12;
         this.check_in = check_in;

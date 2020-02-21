@@ -54,7 +54,6 @@ public class Program {
                     cancelReservation();
                     break;
                 case 4:
-
                     Reservation currentReservation = findReservation();
                     if(currentReservation!=null){
                     changeReservation(currentReservation);}
@@ -86,21 +85,21 @@ public class Program {
             statement.setString(1, reservation_reference);
             ResultSet result = statement.executeQuery();
             if (result.next()) {
-                String total_person = result.getObject(1).toString();
-                String person_over_12 = result.getObject(2).toString();
+                int total_person = (int) result.getObject(1);
+                int person_over_12 = (int) result.getObject(2);
                 String check_in = result.getObject(3).toString();
                 String check_out = result.getObject(4).toString();
-                String price_total = result.getObject(5).toString();
+                int price_total = (int) result.getObject(5);
                 String extra_bed = result.getObject(6).toString();
-                String extra_bed_price = result.getObject(7).toString();
+                int extra_bed_price = (int) result.getObject(7);
                 String hotel_name = result.getObject(8).toString();
                 String meal_type = result.getObject(9).toString();
-                String price_meal_per_person = result.getObject(10).toString();
-                String room_price_per_day = result.getObject(11).toString();
+                int price_meal_per_person = (int) result.getObject(10);
+                int room_price_per_day = (int) result.getObject(11);
                 String extra_bed_availability = result.getObject(12).toString();
-                String max_person = result.getObject(13).toString();
+                int max_person = (int) result.getObject(13);
                 String room_type = result.getObject(14).toString();
-                String room_number = result.getObject(15).toString();
+                int room_number = (int) result.getObject(15);
                 
                 System.out.println("hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".");
                 System.out.println("total person: " + total_person + ". person over 12: " + person_over_12 + ". check in: " + check_in + ". check out: "+ check_out + ".");
@@ -145,12 +144,13 @@ public class Program {
                         changeCheckOutDate();
                         break;
                     case 3:
-                        if(currentReservation!=null){
-                        changeTotalPersons(currentReservation);}
-                        System.out.println(currentReservation);//why not the updated number?
+                       // if(currentReservation!=null){
+                        //changeTotalPersons(currentReservation);}
+                        //System.out.println(currentReservation);//why not the updated number?
                         break;
                     case 4:
-                        changePersonsOver12();
+                        if(currentReservation!=null){
+                            changePersons(currentReservation);}
                         break;
                     case 5:
                         addExtraBed();
@@ -185,23 +185,23 @@ public class Program {
     private void addExtraBed() {
     }
 
-    private void changePersonsOver12() {
-    }
-
-
-
-    private void changeTotalPersons(Reservation currentReservation) {
-        //currentReservation = findReservation();
-        System.out.println("How many guests will come? ");
+    private void changePersons(Reservation currentReservation) {
+        System.out.println("How many guests over 12 years old will come? ");
+        int new_total_person_over_12 = Integer.parseInt(scanner.nextLine());
+        System.out.println("How many guests in total will come? ");
         int new_total_person = Integer.parseInt(scanner.nextLine());
 
-        if(currentReservation!=null && Integer.parseInt(currentReservation.max_person)>=new_total_person) {
+        if(currentReservation!=null && currentReservation.max_person>=new_total_person) {
             try {
-                statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
-                statement.setInt(1, new_total_person);
-                statement.setString(2, currentReservation.reservation_reference);
+                statement = conn.prepareStatement(" update reservations SET person_over_12 = ?, total_person = ? Where reservation_reference = ?;");
+                statement.setInt(1, new_total_person_over_12);
+                statement.setInt(2, new_total_person);
+                statement.setString(3, currentReservation.reservation_reference);
                 statement.executeUpdate();
-                System.out.println("The total guests number has been changed. The new reservation details: ");
+                System.out.println("The guests number has been changed. The new reservation details: ");
+                currentReservation.person_over_12 = new_total_person_over_12;
+                currentReservation.total_person = new_total_person;
+                System.out.println(currentReservation);
 
 
             }catch (Exception ex){
@@ -212,6 +212,31 @@ public class Program {
         }
     }
 
+
+/*
+    private void changeTotalPersons(Reservation currentReservation) {
+        System.out.println("How many guests will come? ");
+        int new_total_person = Integer.parseInt(scanner.nextLine());
+
+        if(currentReservation!=null && Integer.parseInt(currentReservation.max_person)>=new_total_person) {
+            try {
+                statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
+                statement.setInt(1, new_total_person);
+                statement.setString(2, currentReservation.reservation_reference);
+                statement.executeUpdate();
+                System.out.println("The total guests number has been changed. The new reservation details: ");
+                currentReservation.total_person = new_total_person;
+                System.out.println(currentReservation);
+
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }else{
+            System.out.println("The room has reached its max capacity.");
+        }
+    }
+*/
     private void changeCheckOutDate() {
     }
 
@@ -256,21 +281,21 @@ public class Program {
                statement.setString(1, checkReference);
                ResultSet result = statement.executeQuery();
                if (result.next()) {
-                   String total_person = result.getObject(1).toString();
-                   String person_over_12 = result.getObject(2).toString();
+                   int total_person = (int) result.getObject(1);
+                   int person_over_12 = (int) result.getObject(2);
                    String check_in = result.getObject(3).toString();
                    String check_out = result.getObject(4).toString();
-                   String price_total = result.getObject(5).toString();
+                   int price_total = (int) result.getObject(5);
                    String extra_bed = result.getObject(6).toString();
-                   String extra_bed_price = result.getObject(7).toString();
+                   int extra_bed_price = (int) result.getObject(7);
                    String hotel_name = result.getObject(8).toString();
                    String meal_type = result.getObject(9).toString();
-                   String price_meal_per_person = result.getObject(10).toString();
-                   String room_price_per_day = result.getObject(11).toString();
+                   int price_meal_per_person = (int) result.getObject(10);
+                   int room_price_per_day = (int) result.getObject(11);
                    String extra_bed_availability = result.getObject(12).toString();
-                   String max_person = result.getObject(13).toString();
+                   int max_person = (int) result.getObject(13);
                    String room_type = result.getObject(14).toString();
-                   String room_number = result.getObject(15).toString();
+                   int room_number = (int) result.getObject(15);
                    Reservation currentReservation = new Reservation(total_person,person_over_12,check_in,check_out,price_total,extra_bed, extra_bed_price,hotel_name,meal_type,price_meal_per_person, room_price_per_day,extra_bed_availability,max_person,room_type,room_number,checkReference);
 
                    System.out.println("hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".");
