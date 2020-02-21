@@ -43,5 +43,11 @@ public class Reservation {
         this.reservation_reference = reservation_reference;
     }
 
-
+    @Override
+    public String toString() {
+       return "hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".\n" +
+               "total person: " + total_person + ". person over 12: " + person_over_12 + ". check in: " + check_in + ". check out: " + check_out + ".\n" +
+               "extra bed: " + extra_bed + ". extra bed price: " + extra_bed_price + ". meal type: " + meal_type + ". meal price per person: " + price_meal_per_person + ".\n" + "extra bed availability: " + extra_bed_availability + ". max person: " + max_person + "." +
+               "total price: " + price_total + ". reservation_reference: " + reservation_reference + ".";
+    }
 }

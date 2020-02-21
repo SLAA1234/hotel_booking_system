@@ -9,13 +9,14 @@ public class Program {
     Connection conn = null;
     PreparedStatement statement;
     private Admin currentAdmin;
-    Reservation currentReservation;
+    //Reservation currentReservation;
+
     Scanner scanner = new Scanner(System.in);
 
     public Program() throws SQLException {
     }
 
-    public void start() {
+    public void start() throws SQLException {
         connectToDb();
 
         while (true) {//if invalid admin, how to quit normally.
@@ -26,7 +27,7 @@ public class Program {
         }
     }
 
-    private void adminOperate(Admin currentAdmin){
+    private void adminOperate(Admin currentAdmin) throws SQLException {
         while(true) {
             System.out.println("Choose option:");
             System.out.println("1.Register a customer.");
@@ -53,7 +54,10 @@ public class Program {
                     cancelReservation();
                     break;
                 case 4:
-                    changeReservation();
+
+                    Reservation currentReservation = findReservation();
+                    if(currentReservation!=null){
+                    changeReservation(currentReservation);}
                     break;
                 case 5:
                     System.exit(0);
@@ -64,7 +68,7 @@ public class Program {
     }
 
 
-    private void changeReservation(){
+    private void test(){
         System.out.println("You want to change customer reservation: ");
         System.out.println("Please input the reference of the reservation: ");
         String reservation_reference = scanner.nextLine();
@@ -104,8 +108,7 @@ public class Program {
                 System.out.println("extra bed availability: " + extra_bed_availability + ". max person: " + max_person + ".");
                 System.out.println("total price: " + price_total + ".");
                 System.out.println("I have found your reservation. What do you want to change?");
-                changeMadeByUser();
-                conn.close();
+
             } else {
                 System.out.println("Couldn't find your reservation.");
             }
@@ -114,57 +117,61 @@ public class Program {
         }
     }
 
-    private void changeMadeByUser() throws SQLException {
-        while(true) {
-            System.out.println("1.change check in date.");
-            System.out.println("2.change check out date.");
-            System.out.println("3.change number of persons.");
-            System.out.println("4.change number of persons over 12 years old.");
-            System.out.println("5.add extra bed.");
-            System.out.println("6.remove extra bed.");
-            System.out.println("7.change meal choice.");
-            System.out.println("8.change room.");
-            System.out.println("9.Exit.");
-            int choice = 999;
+    private void changeReservation(Reservation currentReservation) throws SQLException {
+            while (true) {
+                System.out.println("You want to change customer reservation. What do you want to change? ");
+                System.out.println("1.change check in date.");
+                System.out.println("2.change check out date.");
+                System.out.println("3.change number of persons.");
+                System.out.println("4.change number of persons over 12 years old.");
+                System.out.println("5.add extra bed.");
+                System.out.println("6.remove extra bed.");
+                System.out.println("7.change meal choice.");
+                System.out.println("8.change room.");
+                System.out.println("9.Exit.");
+                int choice = 999;
 
-            try {
-                choice = Integer.parseInt(scanner.nextLine());
-            } catch (Exception e) {
-                System.out.println("You must select a number.");
-            }
+                try {
+                    choice = Integer.parseInt(scanner.nextLine());
+                } catch (Exception e) {
+                    System.out.println("You must select a number.");
+                }
 
-            switch (choice) {
-                case 1:
-                    changeCheckInDate();
-                    break;
-                case 2:
-                    changeCheckOutDate();
-                    break;
-                case 3:
-                    changeTotalPersons();
-                    break;
-                case 4:
-                    changePersonsOver12();
-                    break;
-                case 5:
-                    addExtraBed();
-                    break;
-                case 6:
-                    removeExtraBed();
-                    break;
-                case 7:
-                    changeMeal();
-                    break;
-                case 8:
-                    searchRoom();
-                    break;
-                case 9:
-                    System.exit(0);
-                default:
-                    System.out.println("You must choose a number between 1-9.");
+                switch (choice) {
+                    case 1:
+                        changeCheckInDate();
+                        break;
+                    case 2:
+                        changeCheckOutDate();
+                        break;
+                    case 3:
+                        if(currentReservation!=null){
+                        changeTotalPersons(currentReservation);}
+                        System.out.println(currentReservation);//why not the updated number?
+                        break;
+                    case 4:
+                        changePersonsOver12();
+                        break;
+                    case 5:
+                        addExtraBed();
+                        break;
+                    case 6:
+                        removeExtraBed();
+                        break;
+                    case 7:
+                        changeMeal();
+                        break;
+                    case 8:
+                        searchRoom();
+                        break;
+                    case 9:
+                        System.exit(0);
+                    default:
+                        System.out.println("You must choose a number between 1-9.");
+                }
             }
         }
-    }
+
 
     private void searchRoom() {
     }
@@ -183,18 +190,25 @@ public class Program {
 
 
 
-    private void changeTotalPersons() throws SQLException {//doesn't work here
-        currentReservation = findReservation();
+    private void changeTotalPersons(Reservation currentReservation) {
+        //currentReservation = findReservation();
         System.out.println("How many guests will come? ");
-        int new_total_person = Integer.parseInt(scanner.nextLine());//never come to if, maybe in the loop
+        int new_total_person = Integer.parseInt(scanner.nextLine());
+
         if(currentReservation!=null && Integer.parseInt(currentReservation.max_person)>=new_total_person) {
+            try {
+                statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
+                statement.setInt(1, new_total_person);
+                statement.setString(2, currentReservation.reservation_reference);
+                statement.executeUpdate();
+                System.out.println("The total guests number has been changed. The new reservation details: ");
 
-            statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
-            statement.setInt(1, new_total_person);
-            statement.setString(2, currentReservation.reservation_reference);
-            statement.executeUpdate();
-            System.out.println("The total guests number has been changed. The new reservation details: ");
 
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }else{
+            System.out.println("The room has reached its max capacity.");
         }
     }
 
@@ -206,29 +220,28 @@ public class Program {
         String newCheckIn = scanner.nextLine();//change to date form
     }
 
-    private String checkReservationReference(){//display twice
-        System.out.println("Please input the reference of the reservation: ");
-        String reservation_reference = scanner.nextLine();
-        try {
-            statement = conn.prepareStatement("SELECT * FROM reservations WHERE reservation_reference = ? ;");
-            statement.setString(1, reservation_reference);
-            ResultSet result = statement.executeQuery();
-            if (result.next()) {
-                System.out.println("There is a reservation with this reservation reference.");
-               // conn.close();
-                return reservation_reference;
-            } else {
-                System.out.println("No such reservation.");
+    private String checkReservationReference(String checkReference) {
+            try {
+                statement = conn.prepareStatement("SELECT * FROM reservations WHERE reservation_reference = ? ;");
+                statement.setString(1, checkReference);
+                ResultSet result = statement.executeQuery();
+                if (result.next()) {
+                    System.out.println("There is a reservation with this reservation reference.");
+                    return checkReference;
+                } else {
+                    System.out.println("No such reservation.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
-    }
+
 
     private Reservation findReservation(){
-        String reservation_reference = checkReservationReference();
-        if(reservation_reference!=null){
+        System.out.println("Please input the reference of the reservation: ");
+        String checkReference = checkReservationReference(scanner.nextLine());
+        if(checkReference!=null){
            try {
                statement = conn.prepareStatement("SELECT total_person, person_over_12, check_in, check_out, price_total, reservations.extra_bed, extra_bed_price, hotel_name, meal_type, price_meal_per_person, room_price_per_day, rooms.extra_bed_availability, max_persons, room_type.room_type, room_number\n" +
                        "\tFROM reservations \n" +
@@ -240,7 +253,7 @@ public class Program {
                        "\t\t\t\t\t\t\tON rooms.room_type_id = room_type.room_type_id\n" +
                        "\t\t\t\t\t\t\t\tINNER JOIN hotels\n" +
                        "\t\t\t\t\t\t\t\t\tON hotels.hotel_id = reservations.hotel_id WHERE reservation_reference = ?");
-               statement.setString(1, reservation_reference);
+               statement.setString(1, checkReference);
                ResultSet result = statement.executeQuery();
                if (result.next()) {
                    String total_person = result.getObject(1).toString();
@@ -258,7 +271,7 @@ public class Program {
                    String max_person = result.getObject(13).toString();
                    String room_type = result.getObject(14).toString();
                    String room_number = result.getObject(15).toString();
-                   currentReservation = new Reservation(total_person,person_over_12,check_in,check_out,price_total,extra_bed, extra_bed_price,hotel_name,meal_type,price_meal_per_person, room_price_per_day,extra_bed_availability,max_person,room_type,room_number,reservation_reference);
+                   Reservation currentReservation = new Reservation(total_person,person_over_12,check_in,check_out,price_total,extra_bed, extra_bed_price,hotel_name,meal_type,price_meal_per_person, room_price_per_day,extra_bed_availability,max_person,room_type,room_number,checkReference);
 
                    System.out.println("hotel name: " + hotel_name + ". room number: " + room_number + ". room type: " + room_type + ". room price per day: " + room_price_per_day + ".");
                    System.out.println("total person: " + total_person + ". person over 12: " + person_over_12 + ". check in: " + check_in + ". check out: " + check_out + ".");
@@ -266,7 +279,6 @@ public class Program {
                    System.out.println("extra bed availability: " + extra_bed_availability + ". max person: " + max_person + ".");
                    System.out.println("total price: " + price_total + ".");
                    System.out.println("I have found your reservation. What do you want to change?");
-                   conn.close();
                    return currentReservation;
                }
            } catch (SQLException ex) {
