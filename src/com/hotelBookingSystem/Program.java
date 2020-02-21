@@ -121,13 +121,11 @@ public class Program {
                 System.out.println("You want to change customer reservation. What do you want to change? ");
                 System.out.println("1.change check in date.");
                 System.out.println("2.change check out date.");
-                System.out.println("3.change number of persons.");
-                System.out.println("4.change number of persons over 12 years old.");
-                System.out.println("5.add extra bed.");
-                System.out.println("6.remove extra bed.");
-                System.out.println("7.change meal choice.");
-                System.out.println("8.change room.");
-                System.out.println("9.Exit.");
+                System.out.println("3.change number of total persons/persons over 12 years old.");
+                System.out.println("4.change extra bed status.");
+                System.out.println("5.change meal choice.");
+                System.out.println("6.change room.");
+                System.out.println("7.Exit.");
                 int choice = 999;
 
                 try {
@@ -144,27 +142,19 @@ public class Program {
                         changeCheckOutDate();
                         break;
                     case 3:
-                       // if(currentReservation!=null){
-                        //changeTotalPersons(currentReservation);}
-                        //System.out.println(currentReservation);//why not the updated number?
-                        break;
-                    case 4:
                         if(currentReservation!=null){
                             changePersons(currentReservation);}
                         break;
+                    case 4:
+                        changeExtraBed();
+                        break;
                     case 5:
-                        addExtraBed();
-                        break;
-                    case 6:
-                        removeExtraBed();
-                        break;
-                    case 7:
                         changeMeal();
                         break;
-                    case 8:
+                    case 6:
                         searchRoom();
                         break;
-                    case 9:
+                    case 7:
                         System.exit(0);
                     default:
                         System.out.println("You must choose a number between 1-9.");
@@ -179,11 +169,9 @@ public class Program {
     private void changeMeal() {
     }
 
-    private void removeExtraBed() {
+    private void changeExtraBed() {
     }
 
-    private void addExtraBed() {
-    }
 
     private void changePersons(Reservation currentReservation) {
         System.out.println("How many guests over 12 years old will come? ");
@@ -213,30 +201,6 @@ public class Program {
     }
 
 
-/*
-    private void changeTotalPersons(Reservation currentReservation) {
-        System.out.println("How many guests will come? ");
-        int new_total_person = Integer.parseInt(scanner.nextLine());
-
-        if(currentReservation!=null && Integer.parseInt(currentReservation.max_person)>=new_total_person) {
-            try {
-                statement = conn.prepareStatement(" update reservations SET total_person = ? Where reservation_reference = ?;");
-                statement.setInt(1, new_total_person);
-                statement.setString(2, currentReservation.reservation_reference);
-                statement.executeUpdate();
-                System.out.println("The total guests number has been changed. The new reservation details: ");
-                currentReservation.total_person = new_total_person;
-                System.out.println(currentReservation);
-
-
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
-        }else{
-            System.out.println("The room has reached its max capacity.");
-        }
-    }
-*/
     private void changeCheckOutDate() {
     }
 
