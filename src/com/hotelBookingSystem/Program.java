@@ -173,6 +173,40 @@ public class Program {
             }
         }
 
+    public void showUpdatedReservation(Reservation currentReservation){
+        try {
+            statement = conn.prepareStatement("SELECT * FROM reservation_all_useful_info WHERE reservation_reference = ?");
+            statement.setString(1, currentReservation.reservation_reference);
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+
+                int total_person = (int) result.getObject(1);
+                int person_over_12 = (int) result.getObject(2);
+                String check_in = result.getObject(3).toString();
+                String check_out = result.getObject(4).toString();
+                int price_total = (int) result.getObject(5);
+                int extra_bed = (int) result.getObject(6);
+                int extra_bed_price = (int) result.getObject(7);
+                String hotel_name = result.getObject(8).toString();
+                String meal_type = result.getObject(9).toString();
+                int price_meal_per_person = (int) result.getObject(10);
+                int room_price_per_day = (int) result.getObject(11);
+                int extra_bed_availability = (int) result.getObject(12);
+                int max_person = (int) result.getObject(13);
+                String room_type = result.getObject(14).toString();
+                int room_number = (int) result.getObject(15);
+                String reservation_reference = result.getObject(16).toString();
+                Reservation newReservation = new Reservation(total_person,person_over_12,check_in,check_out,price_total,extra_bed, extra_bed_price,hotel_name,meal_type,price_meal_per_person, room_price_per_day,extra_bed_availability,max_person,room_type,room_number,reservation_reference);
+
+                System.out.println(newReservation);
+
+            }
+        } catch (SQLException ex) {
+            ex.getStackTrace();
+        }
+    }
+
+
 
     private void searchRoom() {
     }
