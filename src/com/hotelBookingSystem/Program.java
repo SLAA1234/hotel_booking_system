@@ -112,6 +112,7 @@ public class Program {
                     case 5:
                         if(currentReservation!=null) {
                             changeMeal(currentReservation);
+                            showUpdatedReservation(currentReservation);
                         }
 
                         break;
@@ -196,25 +197,21 @@ public class Program {
 
     private void searchRoom() {
     }
-//what if create a method calculate total price seperately.
+
     private void changeMeal(Reservation currentReservation) {
         showHotelMealChoice(currentReservation);
-        System.out.println("input the meal choice id: ");//try catch here, must select no shows between. it can choose
-        //other number and it changes in database.
-        int new_meal_choice_id = Integer.parseInt(scanner.nextLine());
-
-        try {
-            statement = conn.prepareStatement(" UPDATE reservations SET meal_choice_id = ? WHERE reservation_reference = ?;");
+        System.out.println("input the meal choice id: ");
+        try {int new_meal_choice_id = Integer.parseInt(scanner.nextLine());
+            statement = conn.prepareStatement(" UPDATE reservations SET meal_choice_id = ? WHERE reservation_reference = ?;UPDATE reservation_all_useful_info SET price_total = (room_price_per_day + person_over_12 * price_meal_per_person + extra_bed * extra_bed_price) * DATEDIFF(check_out, check_in) WHERE reservation_reference = ?;");
             statement.setInt(1, new_meal_choice_id);
             statement.setString(2, currentReservation.reservation_reference);
+            statement.setString(3, currentReservation.reservation_reference);
             statement.executeUpdate();
                 }
-                catch (SQLException ex){
-                    ex.printStackTrace();
+                catch (Exception ex){
+                    System.out.println("You must input a number.");
+                   ex.printStackTrace();
                 }
-
-        //how to print new currentreservation status? fix it
-        // find new meal price and meal_type by meal id. calculate total price.
     }
 
 
@@ -261,8 +258,7 @@ public class Program {
             } catch (SQLException ex) {
                 ex.getStackTrace();
             }
-        }
-        else if (newReservation.extra_bed_availability==1 && newReservation.extra_bed==0) {
+        } else if (newReservation.extra_bed_availability == 1 && newReservation.extra_bed == 0) {
             try {
                 statement = conn.prepareStatement(" update reservations SET extra_bed = ? Where reservation_reference = ?; UPDATE reservation_all_useful_info SET price_total = (room_price_per_day + person_over_12 * price_meal_per_person + extra_bed * extra_bed_price) * DATEDIFF(check_out, check_in) WHERE reservation_reference = ?");
                 statement.setInt(1, 1);
@@ -273,47 +269,18 @@ public class Program {
             } catch (SQLException ex) {
                 ex.getStackTrace();
             }
-        }
-        else{
+        } else {
             System.out.println("Oh! This room doesn't allow to add extra bed.");
         }
-        /*
-       if (currentReservation.extra_bed_availability == 1 && currentReservation.extra_bed == 1) {
-            try {
-                statement = conn.prepareStatement(" update reservations SET extra_bed = ? Where reservation_reference = ?;UPDATE reservation_all_useful_info SET price_total = (room_price_per_day + person_over_12 * price_meal_per_person + extra_bed * extra_bed_price) * DATEDIFF(check_out, check_in) WHERE reservation_reference = ?");
-                statement.setInt(1, 0);
-                statement.setString(2, currentReservation.reservation_reference);
-                statement.setString(3, currentReservation.reservation_reference);
-                statement.executeUpdate();
+    }
 
-
-            } catch (SQLException ex) {
-                ex.getStackTrace();
-            }
-        }
-        else if (currentReservation.extra_bed_availability==1 && currentReservation.extra_bed==0) {
-           try {
-               statement = conn.prepareStatement(" update reservations SET extra_bed = ? Where reservation_reference = ?; UPDATE reservation_all_useful_info SET price_total = (room_price_per_day + person_over_12 * price_meal_per_person + extra_bed * extra_bed_price) * DATEDIFF(check_out, check_in) WHERE reservation_reference = ?");
-               statement.setInt(1, 1);
-               statement.setString(2, currentReservation.reservation_reference);
-               statement.setString(3, currentReservation.reservation_reference);
-               statement.executeUpdate();
-           } catch (SQLException ex) {
-               ex.getStackTrace();
-           }
-       }
-        else{
-            System.out.println("Oh! This room doesn't allow to add extra bed.");
-            }
-
-         */
-        }
 
 
 
 
     public void changePerson(Reservation currentReservation){
         System.out.println("How many guests over 12 years old will come? ");
+
         try{
             int new_total_person_over_12 = Integer.parseInt(scanner.nextLine());
             System.out.println("How many guests in total will come? ");
@@ -444,7 +411,7 @@ public class Program {
         String person_country = scanner.nextLine();
         System.out.println("Input email of customer: ");
         String person_email = scanner.nextLine();
-        System.out.println("Input telephone: ");//number save as varchar
+        System.out.println("Input telephone: ");
         String person_telephone =  scanner.nextLine();
 
         try{
