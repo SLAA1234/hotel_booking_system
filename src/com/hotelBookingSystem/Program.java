@@ -146,8 +146,9 @@ public class Program {
                         changeCheckOutDate();
                         break;
                     case 3:
-                        if(currentReservation!=null){
-                            changePersons(currentReservation);
+                        if (currentReservation != null) {
+                            changePerson(currentReservation);
+                            showUpdatedReservation(currentReservation);
                         }
                         break;
                     case 4:
@@ -263,30 +264,25 @@ public class Program {
 
 
 
-    private void changePersons(Reservation currentReservation) {
+    public void changePerson(Reservation currentReservation){
         System.out.println("How many guests over 12 years old will come? ");
-        int new_total_person_over_12 = Integer.parseInt(scanner.nextLine());
-        System.out.println("How many guests in total will come? ");
-        int new_total_person = Integer.parseInt(scanner.nextLine());
+        try{
+            int new_total_person_over_12 = Integer.parseInt(scanner.nextLine());
+            System.out.println("How many guests in total will come? ");
+            int new_total_person = Integer.parseInt(scanner.nextLine());
 
-        if(currentReservation!=null && currentReservation.max_person>=new_total_person) {
-            try {
-                statement = conn.prepareStatement(" update reservations SET person_over_12 = ?, total_person = ? Where reservation_reference = ?;");
-                statement.setInt(1, new_total_person_over_12);
-                statement.setInt(2, new_total_person);
+            if(currentReservation!=null && currentReservation.max_person>=new_total_person) {
+                statement = conn.prepareStatement("UPDATE reservation_all_useful_info SET total_person = ?, person_over_12 =? WHERE reservation_reference = ?; UPDATE reservation_all_useful_info SET price_total = (room_price_per_day + person_over_12 * price_meal_per_person + extra_bed * extra_bed_price) * DATEDIFF(check_out, check_in) WHERE reservation_reference = ?");
+                statement.setInt(1, new_total_person);
+                statement.setInt(2, new_total_person_over_12);
                 statement.setString(3, currentReservation.reservation_reference);
+                statement.setString(4, currentReservation.reservation_reference);
                 statement.executeUpdate();
-                System.out.println("The guests number has been changed. The new reservation details: ");
-                currentReservation.person_over_12 = new_total_person_over_12;
-                currentReservation.total_person = new_total_person;
-                System.out.println(currentReservation);//total_price should fix.
-
-
-            }catch (Exception ex){
-                ex.printStackTrace();
+            }else{
+                System.out.println("The room has reached its max capacity.");
             }
-        }else{
-            System.out.println("The room has reached its max capacity.");
+        }catch (Exception ex){
+            System.out.println("You must input a number.");
         }
     }
 
