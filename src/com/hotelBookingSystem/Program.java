@@ -1,8 +1,11 @@
 package com.hotelBookingSystem;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -75,13 +78,10 @@ public class Program {
     private void changeReservation(Reservation currentReservation) throws SQLException {
             while (true) {
 
-                System.out.println("1.change check in date.");
-                System.out.println("2.change check out date.");
-                System.out.println("3.change number of total persons/persons over 12 years old.");
-                System.out.println("4.change extra bed status.");
-                System.out.println("5.change meal choice.");
-                System.out.println("6.change room.");
-                System.out.println("7.Exit.");
+                System.out.println("1.change number of total persons/persons over 12 years old.");
+                System.out.println("2.change extra bed status.");
+                System.out.println("3.change meal choice.");
+                System.out.println("4.Exit.");
                 int choice = 999;
 
                 try {
@@ -91,38 +91,29 @@ public class Program {
                 }
 
                 switch (choice) {
+
                     case 1:
-                        changeCheckInDate();
-                        break;
-                    case 2:
-                        changeCheckOutDate();
-                        break;
-                    case 3:
                         if (currentReservation != null) {
                             changePerson(currentReservation);
                             showUpdatedReservation(currentReservation);
                         }
                         break;
-                    case 4:
+                    case 2:
                         if(currentReservation!=null){
                             changeExtraBed(currentReservation);
                             showUpdatedReservation(currentReservation);
                         }
                         break;
-                    case 5:
+                    case 3:
                         if(currentReservation!=null) {
                             changeMeal(currentReservation);
                             showUpdatedReservation(currentReservation);
                         }
-
                         break;
-                    case 6:
-                        searchRoom();
-                        break;
-                    case 7:
+                    case 4:
                         System.exit(0);
                     default:
-                        System.out.println("You must choose a number between 1-9.");
+                        System.out.println("You must choose a number between 1-4.");
                 }
             }
         }
@@ -302,13 +293,20 @@ public class Program {
     }
 
 
-    private void changeCheckOutDate() {
-    }
-
+/*
     private void changeCheckInDate() {
+        String pattern = "yyyy-MM-dd";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         System.out.println("When is the new check in date?");
-        String newCheckIn = scanner.nextLine();//change to date form
+        try {
+            Date newCheckInDate = simpleDateFormat.parse(scanner.nextLine());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
+    
+ */
 
     private String checkReservationReference(String checkReference) {
             try {
