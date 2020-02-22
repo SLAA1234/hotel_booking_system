@@ -9,18 +9,18 @@ public class Reservation {
     String check_in ;
     String check_out ;
     int price_total;
-    String extra_bed ;
+    int extra_bed ;
     int extra_bed_price ;
     String hotel_name ;
     String meal_type ;
     int price_meal_per_person ;
     int room_price_per_day;
-    String extra_bed_availability ;
+    int extra_bed_availability ;
     int max_person;
     String room_type;
     int room_number;
 
-    public Reservation(int total_person, int person_over_12 , String check_in, String check_out, int price_total, String extra_bed, int extra_bed_price, String hotel_name, String meal_type, int price_meal_per_person, int room_price_per_day, String extra_bed_availability, int max_person, String room_type, int room_number, String reservation_reference) throws SQLException {
+    public Reservation(int total_person, int person_over_12 , String check_in, String check_out, int price_total, int extra_bed, int extra_bed_price, String hotel_name, String meal_type, int price_meal_per_person, int room_price_per_day, int extra_bed_availability, int max_person, String room_type, int room_number, String reservation_reference) throws SQLException {
         this.total_person = total_person;
         this.person_over_12 = person_over_12;
         this.check_in = check_in;
