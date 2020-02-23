@@ -54,7 +54,7 @@ public class Program {
                 case 2:
                     CustomerSearchCriteria customerSearchCriteria = checkCustomerSearchCriteria();
                     if(customerSearchCriteria!= null){
-                        showAvailableRoom(customerSearchCriteria);
+                        searchAndBookRoom(customerSearchCriteria);
                     } ;
                     break;
                 case 3:
@@ -289,21 +289,6 @@ public class Program {
     }
 
 
-/*
-    private void changeCheckInDate() {
-        String pattern = "yyyy-MM-dd";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        System.out.println("When is the new check in date?");
-        try {
-            Date newCheckInDate = simpleDateFormat.parse(scanner.nextLine());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-    }
-    
- */
-
     private String checkReservationReference(String checkReference) {
             try {
                 statement = conn.prepareStatement("SELECT * FROM reservations WHERE reservation_reference = ? ;");
@@ -382,7 +367,6 @@ public class Program {
             int rows = statement.executeUpdate();
             if (rows>0) {
                 System.out.println("The reservation has been cancelled.");
-                conn.close();
             } else{
             System.out.println("This reservation doesn't exit.");}
         }catch (SQLException ex){
@@ -390,7 +374,7 @@ public class Program {
         }
     }
 
-    private void showAvailableRoom(CustomerSearchCriteria customerSearchCriteria){
+    private void searchAndBookRoom(CustomerSearchCriteria customerSearchCriteria){
 
         System.out.println("Do you want to display search result by:\n 1.room price (from low to high) \n 2.customer review score (from high to low)");
         int choice = 999;
@@ -403,12 +387,12 @@ public class Program {
             switch (choice) {
                 case 1:
                     if(customerSearchCriteria!=null) {
-                        searchRoomShowByPrice(customerSearchCriteria);
+                        searchAndBookRoomByPrice(customerSearchCriteria);
                     }
                     break;
                 case 2:
                     if(customerSearchCriteria!=null) {
-                        searchRoomShowByScore(customerSearchCriteria);
+                        searchAndBookRoomByScore(customerSearchCriteria);
                     }
                     break;
                 default:
@@ -417,7 +401,7 @@ public class Program {
         }
 
 
-    private void searchRoomShowByPrice (CustomerSearchCriteria customerSearchCriteria) {
+    private void searchAndBookRoomByPrice (CustomerSearchCriteria customerSearchCriteria) {
             try {
                 statement = conn.prepareStatement(
                         "SELECT hotel_name, stars, score, room_number, room_type.room_type, room_price_per_day,extra_bed_availability, extra_bed_price, max_persons, meal_type, price_meal_per_person\n" +
@@ -501,6 +485,41 @@ public class Program {
 
                     Reservation new_reservation = new Reservation(customerSearchCriteria.getTotal_person(), customerSearchCriteria.getPerson_over_12(), customerSearchCriteria.getCheck_in(), customerSearchCriteria.getCheck_out(), price_total, extra_bed, availableRoomList.get(booking_room_number - 1).getExtra_bed_price(), availableRoomList.get(booking_room_number - 1).getHotel_name(), customerSearchCriteria.getMeal_choice(), availableRoomList.get(booking_room_number - 1).getPrice_meal_per_person(), availableRoomList.get(booking_room_number - 1).getRoom_price_per_day(), availableRoomList.get(booking_room_number - 1).getExtra_bed_availability(), availableRoomList.get(booking_room_number - 1).getMax_persons(), availableRoomList.get(booking_room_number - 1).getRoom_type(), availableRoomList.get(booking_room_number - 1).getRoom_number(), reservation_reference);
                     System.out.println("This is your reservation detail:\n " + new_reservation + "\n");
+                    try{
+                        statement= conn.prepareStatement ("SELECT room_id, rooms.hotel_id, meal_choice_id FROM rooms INNER JOIN hotel_meal_choice ON rooms.hotel_id = hotel_meal_choice.hotel_id WHERE room_number = ? AND meal_type = ?;");
+                        statement.setInt(1,availableRoomList.get(booking_room_number - 1).getRoom_number());
+                        statement.setString(2,customerSearchCriteria.getMeal_choice());
+                        ResultSet result1 = statement.executeQuery();
+                        while (result1.next()) {
+                            int room_id = Integer.parseInt(result1.getObject(1).toString());
+                            int hotel_id = Integer.parseInt(result1.getObject(2).toString());
+                            int meal_choice_id = Integer.parseInt(result1.getObject(3).toString());
+                            try {
+                                statement = conn.prepareStatement("INSERT INTO reservations\n" +
+                                        "SET hotel_id = ?, room_id = ?, total_person = ?, person_over_12 = ?, meal_choice_id= ?, extra_bed = ?, check_in = ?, \n" +
+                                        "check_out=?, reservation_reference=?, price_total=?;");
+                                statement.setInt(1,hotel_id);
+                                statement.setInt(2,room_id);
+                                statement.setInt(3,customerSearchCriteria.getTotal_person());
+                                statement.setInt(4,customerSearchCriteria.getPerson_over_12());
+                                statement.setInt(5,meal_choice_id);
+                                statement.setInt(6,extra_bed);
+                                statement.setString(7,customerSearchCriteria.getCheck_in());
+                                statement.setString(8,customerSearchCriteria.getCheck_out());
+                                statement.setString(9,reservation_reference);
+                                statement.setInt(10,price_total);
+                                statement.executeUpdate();
+                            } catch (SQLException ex) {
+                                ex.getStackTrace();
+                            }
+                        }
+
+                    }catch (SQLException ex){
+                        ex.getStackTrace();
+                    }
+
+
+
                 }else{
                     System.out.println("There is no room available now.\n");
                     System.out.println("Do you want: \n1.exit.\n2.make new search.");
@@ -532,7 +551,7 @@ public class Program {
     private void searchByPriceAgain() {
         CustomerSearchCriteria newCriteria = checkCustomerSearchCriteria();
         if(newCriteria!=null) {
-            searchRoomShowByPrice(newCriteria);
+            searchAndBookRoomByPrice(newCriteria);
         }
 
     }
@@ -561,7 +580,7 @@ public class Program {
     }
 
 
-    private void searchRoomShowByScore(CustomerSearchCriteria customerSearchCriteria){
+    private void searchAndBookRoomByScore(CustomerSearchCriteria customerSearchCriteria){
             try {
                 statement = conn.prepareStatement(
                         "SELECT hotel_name, stars, score, room_number, room_type.room_type, room_price_per_day,extra_bed_availability, extra_bed_price, max_persons, meal_type, price_meal_per_person\n" +
@@ -644,6 +663,40 @@ public class Program {
 
                     Reservation new_reservation = new Reservation(customerSearchCriteria.getTotal_person(), customerSearchCriteria.getPerson_over_12(), customerSearchCriteria.getCheck_in(), customerSearchCriteria.getCheck_out(), price_total, extra_bed, availableRoomList.get(booking_room_number - 1).getExtra_bed_price(), availableRoomList.get(booking_room_number - 1).getHotel_name(), customerSearchCriteria.getMeal_choice(), availableRoomList.get(booking_room_number - 1).getPrice_meal_per_person(), availableRoomList.get(booking_room_number - 1).getRoom_price_per_day(), availableRoomList.get(booking_room_number - 1).getExtra_bed_availability(), availableRoomList.get(booking_room_number - 1).getMax_persons(), availableRoomList.get(booking_room_number - 1).getRoom_type(), availableRoomList.get(booking_room_number - 1).getRoom_number(), reservation_reference);
                     System.out.println("This is your reservation detail:\n " + new_reservation + "\n");
+
+                    try{
+                        statement= conn.prepareStatement ("SELECT room_id, rooms.hotel_id, meal_choice_id FROM rooms INNER JOIN hotel_meal_choice ON rooms.hotel_id = hotel_meal_choice.hotel_id WHERE room_number = ? AND meal_type = ?;");
+                        statement.setInt(1,availableRoomList.get(booking_room_number - 1).getRoom_number());
+                        statement.setString(2,customerSearchCriteria.getMeal_choice());
+                        ResultSet result1 = statement.executeQuery();
+                        while (result1.next()) {
+                            int room_id = Integer.parseInt(result1.getObject(1).toString());
+                            int hotel_id = Integer.parseInt(result1.getObject(2).toString());
+                            int meal_choice_id = Integer.parseInt(result1.getObject(3).toString());
+                            try {
+                                statement = conn.prepareStatement("INSERT INTO reservations\n" +
+                                        "SET hotel_id = ?, room_id = ?, total_person = ?, person_over_12 = ?, meal_choice_id= ?, extra_bed = ?, check_in = ?, \n" +
+                                        "check_out=?, reservation_reference=?, price_total=?;");
+                                statement.setInt(1,hotel_id);
+                                statement.setInt(2,room_id);
+                                statement.setInt(3,customerSearchCriteria.getTotal_person());
+                                statement.setInt(4,customerSearchCriteria.getPerson_over_12());
+                                statement.setInt(5,meal_choice_id);
+                                statement.setInt(6,extra_bed);
+                                statement.setString(7,customerSearchCriteria.getCheck_in());
+                                statement.setString(8,customerSearchCriteria.getCheck_out());
+                                statement.setString(9,reservation_reference);
+                                statement.setInt(10,price_total);
+                                statement.executeUpdate();
+                            } catch (SQLException ex) {
+                                ex.getStackTrace();
+                            }
+                        }
+
+                    }catch (SQLException ex){
+                        ex.getStackTrace();
+                    }
+
                 }else{
                     System.out.println("There is no room available now.\n");
                     System.out.println("Do you want: \n1.exit.\n2.make new search.");
@@ -675,7 +728,7 @@ public class Program {
     private void searchByScoreAgain() {
         CustomerSearchCriteria newCriteria = checkCustomerSearchCriteria();
         if(newCriteria!=null) {
-            searchRoomShowByScore(newCriteria);
+            searchAndBookRoomByScore(newCriteria);
         }
     }
 
@@ -815,7 +868,6 @@ public class Program {
                         Admin admin = new Admin(name);
                         return admin;
                     }
-                    conn.close();
                 } else {
                     System.out.println("wrong username or password.");
                 }
