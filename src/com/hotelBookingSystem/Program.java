@@ -6,15 +6,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-
 public class Program {
-
     Connection conn = null;
     PreparedStatement statement;
     private Admin currentAdmin;
-
-
-
     Scanner scanner = new Scanner(System.in);
 
     public Program() throws SQLException {
@@ -23,7 +18,7 @@ public class Program {
     public void start() throws SQLException {
         connectToDb();
 
-        while (true) {//if invalid admin, how to quit normally.
+        while (true) {
             currentAdmin = adminLogin();
             if (currentAdmin != null) {
                 adminOperate(currentAdmin);
@@ -183,8 +178,6 @@ public class Program {
         return null;
     }
 
-
-
     private void changeMeal(Reservation currentReservation) {
         showHotelMealChoice(currentReservation);
         System.out.println("input the meal choice id: ");
@@ -240,8 +233,6 @@ public class Program {
                 statement.setString(3, currentReservation.reservation_reference);
                 statement.executeUpdate();
                 System.out.println("Your new reservation details: ");
-
-
             } catch (SQLException ex) {
                 ex.getStackTrace();
             }
@@ -260,10 +251,6 @@ public class Program {
             System.out.println("Oh! This room doesn't allow to add extra bed.");
         }
     }
-
-
-
-
 
     public void changePerson(Reservation currentReservation){
         System.out.println("How many guests over 12 years old will come? ");
@@ -288,7 +275,6 @@ public class Program {
         }
     }
 
-
     private String checkReservationReference(String checkReference) {
             try {
                 statement = conn.prepareStatement("SELECT * FROM reservations WHERE reservation_reference = ? ;");
@@ -305,7 +291,6 @@ public class Program {
             }
             return null;
         }
-
 
     private Reservation findReservation(){
         System.out.println("Please input the reference of the reservation: ");
@@ -399,7 +384,6 @@ public class Program {
                     System.out.println("You must choose a number between 1-2.");
             }
         }
-
 
     private void searchAndBookRoomByPrice (CustomerSearchCriteria customerSearchCriteria) {
             try {
@@ -518,8 +502,6 @@ public class Program {
                         ex.getStackTrace();
                     }
 
-
-
                 }else{
                     System.out.println("There is no room available now.\n");
                     System.out.println("Do you want: \n1.exit.\n2.make new search.");
@@ -539,10 +521,7 @@ public class Program {
                         default:
                             System.out.println("You must input number between 1-2.");
                     }
-
                 }
-
-
                 } catch(SQLException e){
                     e.printStackTrace();
                 }
@@ -553,11 +532,9 @@ public class Program {
         if(newCriteria!=null) {
             searchAndBookRoomByPrice(newCriteria);
         }
-
     }
 
     private Float calculateDays(String check_in, String check_out){
-
         SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-mm-dd");
 
         try {
@@ -716,10 +693,7 @@ public class Program {
                         default:
                             System.out.println("You must input number between 1-2.");
                     }
-
                 }
-
-
             } catch(SQLException e){
                 e.printStackTrace();
             }
@@ -731,7 +705,6 @@ public class Program {
             searchAndBookRoomByScore(newCriteria);
         }
     }
-
 
     private CustomerSearchCriteria checkCustomerSearchCriteria () {
 
@@ -804,7 +777,6 @@ public class Program {
             return 6;
     }
 
-
     private String checkYN(String userInput) {
             if(userInput.equals("Y")){
                 return "Y";
@@ -844,8 +816,6 @@ public class Program {
             }
         }
 
-
-
         private Admin adminLogin () {
             System.out.println("Admin, please input your username: ");
             String username = scanner.nextLine();
@@ -877,8 +847,6 @@ public class Program {
             }
             return null;
         }
-
-
 
     private void connectToDb(){
         try {
