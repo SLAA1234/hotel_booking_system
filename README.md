@@ -1,6 +1,5 @@
 # hotel_booking_system
-connect database with java
-Lisa Wang
+connect database with java  (Lisa Wang)
 
 Log in info:
 
